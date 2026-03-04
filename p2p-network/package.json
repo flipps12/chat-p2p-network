@@ -1,0 +1,15 @@
+{
+  "name": "p2p-network",
+  "version": "1.0.0",
+  "description": "Network for discovery peers",
+  "license": "MIT",
+  "author": "flipps12",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "node ."
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
