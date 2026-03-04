@@ -48,3 +48,5 @@ server.bind(UDP_PORT);
 app.listen(PORT, () => {
   console.log(`P2P Network server is running on port ${PORT}`);
 });
+
+// todo, mudar todo a udp, eliminar http o reservar para futuro
