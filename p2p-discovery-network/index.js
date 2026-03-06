@@ -25,7 +25,7 @@ server.on("message", (buffer, rinfo) => {
 
   // empty message ---
   if (!msg) {
-    server.send(`${rinfo.address}:${rinfo.port}`, rinfo.port, rinfo.address);
+    server.send( JSON.stringify(`{"address": ${rinfo.address}, "port": ${rinfo.port}}`), rinfo.port, rinfo.address);
     return;
   }
 
@@ -34,7 +34,7 @@ server.on("message", (buffer, rinfo) => {
   try {
     msg_json = JSON.parse(msg);
   } catch (err) {
-    server.send(`${rinfo.address}:${rinfo.port}`, rinfo.port, rinfo.address);
+    server.send( JSON.stringify(`{"address": ${rinfo.address}, "port": ${rinfo.port}}`), rinfo.port, rinfo.address);
     console.log("Invalid JSON:", msg);
     return;
   }
@@ -55,7 +55,7 @@ server.on("message", (buffer, rinfo) => {
       break;
 
     default:
-      server.send(`${rinfo.address}:${rinfo.port}`, rinfo.port, rinfo.address);
+      server.send( JSON.stringify(`{"address": ${rinfo.address}, "port": ${rinfo.port}}`), rinfo.port, rinfo.address);
   }
 
   console.log(`server got: ${msg} from ${rinfo.address}:${rinfo.port}`);
