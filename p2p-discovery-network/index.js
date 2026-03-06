@@ -2,6 +2,7 @@
 import express from "express";
 // socket udp for p2p communication
 import dgram from "dgram";
+import { match } from "assert";
 
 // UDP config
 const server = dgram.createSocket("udp4");
@@ -17,9 +18,46 @@ server.on("error", (err) => {
   server.close();
 });
 
-server.on("message", (msg, rinfo) => {
+server.on("message", (buffer, rinfo) => {
   console.log("Auto discover ip:port");
-  server.send(`${rinfo.address}:${rinfo.port}`, rinfo.port, rinfo.address);
+
+  let msg = buffer.toString("utf8").trim();
+
+  // empty message ---
+  if (!msg) {
+    server.send(`${rinfo.address}:${rinfo.port}`, rinfo.port, rinfo.address);
+    return;
+  }
+
+  let msg_json;
+
+  try {
+    msg_json = JSON.parse(msg);
+  } catch (err) {
+    server.send(`${rinfo.address}:${rinfo.port}`, rinfo.port, rinfo.address);
+    console.log("Invalid JSON:", msg);
+    return;
+  }
+  // ---
+
+  console.log(msg_json);
+
+  switch (msg_json.header) {
+    // parse to json
+    case "getpeerid":
+      server.send(`peeridtest`, rinfo.port, rinfo.address);
+      console.log("nametag: " + msg_json.body.nametag);
+      break;
+    case "publish":
+      // publicar y devolver status 
+      server.send("Ok", rinfo.port, rinfo.address);
+      console.log("peerid: " + msg_json.body.peerid);
+      break;
+
+    default:
+      server.send(`${rinfo.address}:${rinfo.port}`, rinfo.port, rinfo.address);
+  }
+
   console.log(`server got: ${msg} from ${rinfo.address}:${rinfo.port}`);
 });
 
@@ -29,19 +67,18 @@ server.on("listening", () => {
 });
 
 // HTTP
-app.get("/discover", (req, res) => {
-  const nametag = req.query.nametag;
-  console.log(`Received discovery request with nametag: ${nametag}`);
-  res.send("Peerid");
-});
+// app.get("/discover", (req, res) => {
+//   const nametag = req.query.nametag;
+//   console.log(`Received discovery request with nametag: ${nametag}`);
+//   res.send("Peerid");
+// });
 
-app.post("/public", (req, res) => {
-  req.on("data", (chunk) => {
-    console.log("Received public message:", chunk.toString());
-  });
-  res.send("Ok");
-});
-
+// app.post("/public", (req, res) => {
+//   req.on("data", (chunk) => {
+//     console.log("Received public message:", chunk.toString());
+//   });
+//   res.send("Ok");
+// });
 
 // Start servers
 server.bind(UDP_PORT);
